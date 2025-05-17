@@ -1,15 +1,17 @@
-# Python
-venv/
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*.so
 
-# Env files
+# Virtual environment
+venv/
 .env
 
 # Logs
 *.log
 
-# VS Code
+# VS Code settings
 .vscode/
+
+# Mac system files
+.DS_Store
