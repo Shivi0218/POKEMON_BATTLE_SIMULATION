@@ -12,7 +12,7 @@ async def simulate_battle(battle_input: BattleInput) -> BattleResult:
     logs = []
     turn = 1
 
-    # Type effectiveness matrix (expanded)
+    # Type effectiveness matrix
     type_effectiveness = {
         ("fire", "grass"): 2.0, ("grass", "water"): 2.0, ("water", "fire"): 2.0,
         ("fire", "water"): 0.5, ("water", "grass"): 0.5, ("grass", "fire"): 0.5,
@@ -23,7 +23,7 @@ async def simulate_battle(battle_input: BattleInput) -> BattleResult:
         ("electric", "electric"): 0.5, ("poison", "poison"): 0.5
     }
 
-    # Simplified move power (for common moves)
+    # Move power dictionary
     move_power = {
         "thunderbolt": 90, "quick-attack": 40, "tackle": 40, "vine-whip": 45,
         "razor-leaf": 55, "water-gun": 40, "bubble": 40, "ember": 40, "flamethrower": 90
@@ -34,7 +34,7 @@ async def simulate_battle(battle_input: BattleInput) -> BattleResult:
     status2 = None
 
     while hp1 > 0 and hp2 > 0:
-        # Determine turn order based on speed
+        # Turn order logic
         first = pokemon1 if pokemon1.stats["speed"] >= pokemon2.stats["speed"] else pokemon2
         second = pokemon2 if first == pokemon1 else pokemon1
         hp_first = hp1 if first == pokemon1 else hp2
@@ -50,28 +50,26 @@ async def simulate_battle(battle_input: BattleInput) -> BattleResult:
                 outcome="It can't move!"
             ))
         else:
-            # Select a random move from the Pokémon's move list
+            # Move selection and power
             move = random.choice(first.moves)
-            move_pow = move_power.get(move, 40)  # Default power if move not in dictionary
+            move_pow = move_power.get(move, 40)
 
-            # Damage calculation (simplified Pokémon formula): ((2 * Level / 5 + 2) * Power * (Attack / Defense) / 50 + 2) * Type Effectiveness * Random
-            level = 50  # Assume level 50 for simplicity
+            # Damage calculation
+            level = 50  # Assume level 50
             base_damage = ((2 * level / 5 + 2) * move_pow * (first.stats["attack"] / second.stats["defense"]) / 50 + 2)
             type_mult = 1.0
             for first_type in first.types:
                 for second_type in second.types:
                     type_mult *= type_effectiveness.get((first_type, second_type), 1.0)
-            damage = int(base_damage * type_mult * random.uniform(0.85, 1.0))  # Random factor 0.85-1.0
+            damage = int(base_damage * type_mult * random.uniform(0.85, 1.0))
             hp_second -= damage
 
-            # Type effectiveness message
-            effectiveness_msg = ""
-            if type_mult > 1:
-                effectiveness_msg = "It's super effective!"
-            elif type_mult < 1:
-                effectiveness_msg = "It's not very effective."
-            else:
-                effectiveness_msg = "It's a normal hit."
+            # Effectiveness message
+            effectiveness_msg = (
+                "It's super effective!" if type_mult > 1
+                else "It's not very effective." if type_mult < 1
+                else "It's a normal hit."
+            )
 
             logs.append(BattleAction(
                 turn=turn,
@@ -79,8 +77,8 @@ async def simulate_battle(battle_input: BattleInput) -> BattleResult:
                 outcome=f"Deals {damage} damage. {effectiveness_msg} {second.name.capitalize()} has {max(0, hp_second)} HP left."
             ))
 
-            # Apply status effect (20% chance for Electric to paralyze, Fire to burn, Poison to poison)
-            if random.random() < 0.2:  # Increased probability for testing
+            # Status effect application
+            if random.random() < 0.2:
                 if "electric" in first.types and not status_second:
                     status_second = "paralysis"
                     logs.append(BattleAction(
@@ -103,9 +101,9 @@ async def simulate_battle(battle_input: BattleInput) -> BattleResult:
                         outcome=f"{second.name.capitalize()} is poisoned!"
                     ))
 
-            # Apply burn/poison damage if applicable
+            # Burn or poison damage
             if status_second == "burn":
-                burn_damage = int(second.stats["hp"] * 0.0625)  # 1/16 of max HP
+                burn_damage = int(second.stats["hp"] * 0.0625)
                 hp_second -= burn_damage
                 logs.append(BattleAction(
                     turn=turn,
@@ -113,7 +111,7 @@ async def simulate_battle(battle_input: BattleInput) -> BattleResult:
                     outcome=f"Deals {burn_damage} damage. {second.name.capitalize()} has {max(0, hp_second)} HP left."
                 ))
             elif status_second == "poison":
-                poison_damage = int(second.stats["hp"] * 0.125)  # 1/8 of max HP
+                poison_damage = int(second.stats["hp"] * 0.125)
                 hp_second -= poison_damage
                 logs.append(BattleAction(
                     turn=turn,
@@ -151,13 +149,11 @@ async def simulate_battle(battle_input: BattleInput) -> BattleResult:
             damage = int(base_damage * type_mult * random.uniform(0.85, 1.0))
             hp_first -= damage
 
-            effectiveness_msg = ""
-            if type_mult > 1:
-                effectiveness_msg = "It's super effective!"
-            elif type_mult < 1:
-                effectiveness_msg = "It's not very effective."
-            else:
-                effectiveness_msg = "It's a normal hit."
+            effectiveness_msg = (
+                "It's super effective!" if type_mult > 1
+                else "It's not very effective." if type_mult < 1
+                else "It's a normal hit."
+            )
 
             logs.append(BattleAction(
                 turn=turn,
