@@ -288,7 +288,10 @@ st.markdown("""
 # Add Pokeball background div
 st.markdown('<div class="pokeball-bg"></div>', unsafe_allow_html=True)
 
-API_BASE_URL = "http://localhost:8000/api"
+# === THIS IS THE UPDATED LINE ===
+API_BASE_URL = "https://pokemon-battle-simulation.onrender.com/api"
+# ================================
+
 POKEAPI_BASE_URL = "https://pokeapi.co/api/v2" # Added PokeAPI base URL
 
 # Function to get sprite (added caching)
@@ -411,7 +414,8 @@ with tab1:
                         st.error(f"Error fetching data for '{pokemon_name}'. Status code: {res.status_code}")
                         st.json(res.json()) # Display error details if available
                 except requests.exceptions.ConnectionError:
-                     st.error("Cannot connect to the API. Please ensure the backend server is running at `http://localhost:8000`.")
+                     # This error message now reflects a real server issue, not just a local one.
+                     st.error("Cannot connect to the API. The backend server may be down or experiencing issues.")
                 except Exception as e:
                     st.error(f"An unexpected error occurred: {e}")
         else:
@@ -576,7 +580,8 @@ with tab2:
 
 
                 except requests.exceptions.ConnectionError:
-                     st.error("Cannot connect to the API. Please ensure the backend server is running at `http://localhost:8000`.")
+                     # This error message now reflects a real server issue, not just a local one.
+                     st.error("Cannot connect to the API. The backend server may be down or experiencing issues.")
                 except Exception as e:
                     st.error(f"An unexpected error occurred during battle simulation: {e}")
                     # Optionally print traceback for debugging
